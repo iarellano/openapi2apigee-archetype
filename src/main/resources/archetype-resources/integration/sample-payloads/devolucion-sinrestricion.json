@@ -1,0 +1,24 @@
+{
+    "tipoDeOperacion": "devolucion-sinrestriccion",
+    "datos": {
+        "idTerminal": "7001",
+        "modoVenta": "PRD",
+        "numeroReferencia": 326499299999,
+        "importeTotal" : 100.00,
+        "referenciaClienteUno": "Referencia1",
+        "referenciaClienteDos": "Referencia2",
+        "referenciaClienteTres": "Referencia3",
+        "referenciaClienteCuatro": "Referencia4",
+        "referenciaClienteCinco": "Referencia5",
+        "loteTransacciones": "Lote1",
+        "numeroPlastico": "5445480007201946",
+        "periodoExpiracion": 1119,
+        "codigoSeguridad": 248,
+        "modoEntrada": "MANUAL",
+        "url": "",
+        "idioma": "ES",
+        "subAfiliacion" :"SubAfiliacion",
+        "idAgregador" : "SubAfiliacion",
+        "codigoAutorizacion" : "070552"
+   }
+}

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<APIProxy revision="2" name="${artifactId}${deployment.suffix}">
+    <ConfigurationVersion majorVersion="4" minorVersion="0"/>
+    <DisplayName>${artifactId}${deployment.suffix}</DisplayName>
+    #if (${description})
+        <Description>${description}</Description>
+    #else
+        <Description>${artifactId}${deployment.suffix}</Description>
+    #end
+    <Basepaths>${basepath}${deployment.suffix}</Basepaths>
+    <Policies>
+        #if ($mojo.corsEnabled)
+            <Policy>$mojo.corsPolicyName</Policy>
+        #end
+    </Policies>
+    <ProxyEndpoints>
+        <ProxyEndpoint>default</ProxyEndpoint>
+    </ProxyEndpoints>
+    <TargetEndpoints>
+        <TargetEndpoint>default</TargetEndpoint>
+    </TargetEndpoints>
+    <Spec></Spec>
+    <TargetServers/>
+</APIProxy>

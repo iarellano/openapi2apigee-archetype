@@ -1,0 +1,6 @@
+{
+    "tipoDeOperacion": "verificar-transaccion-previa",
+    "datos": {
+        "numeroControl": "123123"
+    }
+}

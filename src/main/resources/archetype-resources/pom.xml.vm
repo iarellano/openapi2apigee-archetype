@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>${mojo.groupId}</groupId>
+    <artifactId>${mojo.proxyName}</artifactId>
+    <version>1</version>
+    <name>${mojo.proxyName}${deployment.suffix}</name>
+    <packaging>pom</packaging>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>central</id>
+            <name>Maven Plugin Repository</name>
+            <url>http://repo1.maven.org/maven2</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <properties>
+        <proxy.basename>${mojo.proxyName}</proxy.basename>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <deployment.suffix>-${user.name}</deployment.suffix>
+        <apigee.username>${env.APIGEE_USERNAME}</apigee.username>
+        <apigee.password>${env.APIGEE_PASSWORD}</apigee.password>
+        <apigee.config.dir>${project.basedir}/target/edge</apigee.config.dir>
+    </properties>
+
+    <profiles>
+        #foreach($env in $mojo.envs)
+            <profile>
+                <id>$env</id>
+                <properties>
+                    <apigee.profile>$env</apigee.profile>
+                    <apigee.env>$env</apigee.env>
+                    <api.testtag>@services</api.testtag>
+                </properties>
+            </profile>
+        #end
+    </profiles>
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>io.apigee.build-tools.enterprise4g</groupId>
+                    <artifactId>apigee-edge-maven-plugin</artifactId>
+                    <version>1.0.2</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+
+            <!-- load yaml settings -->
+            <plugin>
+                <groupId>it.ozimov</groupId>
+                <artifactId>yaml-properties-maven-plugin</artifactId>
+                <version>1.1.2</version>
+                <executions>
+                    <execution>
+                        <id>read-global-properties</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>read-project-properties</goal>
+                        </goals>
+                        <configuration>
+                            <files>
+                                <file>${project.basedir}/config/global-config.yaml</file>
+                                <file>${project.basedir}/config/profile-${apigee.profile}.yaml</file>
+                            </files>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- copy the full apiproxy folder to target folder -->
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.6</version>
+                <executions>
+                    <!-- copy resources to target directory -->
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Be sure not to filter JAR files -->
+                            <nonFilteredFileExtensions>
+                                <nonFilteredFileExtension>jar</nonFilteredFileExtension>
+                            </nonFilteredFileExtensions>
+                            <overwrite>true</overwrite>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}</directory>
+                                    <filtering>true</filtering>
+                                    <includes>
+                                        <include>apiproxy/**</include>
+                                        <include>test/integration/**</include>
+                                        <include>edge/org/**</include>
+                                        <include>edge/env/${apigee.env}/**</include>
+                                        <include>edge/api/${mojo.proxyName}/**</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>com.github.iarellano</groupId>
+                <artifactId>replacer</artifactId>
+                <version>1.6.0</version>
+                <executions>
+                    <execution>
+                        <id>replace-xmls</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>replace</goal>
+                        </goals>
+                        <configuration>
+                            <basedir>${project.build.directory}</basedir>
+                            <includes>
+                                <include>apiproxy/policies/*.xml</include>
+                                <include>apiproxy/proxies/*.xml</include>
+                                <include>apiproxy/targets/*.xml</include>
+                                <include>apiproxy/*.xml</include>
+                            </includes>
+                            <excludes>
+                                <!-- Add here those files you do not want to be replaced -->
+                            </excludes>
+                            <replacements>
+                                <replacement>
+                                    <xpath>/ProxyEndpoint/HTTPProxyConnection/VirtualHost/text()</xpath>
+                                    <token>^(.*)$</token>
+                                    <value>${northbound.virtualhost}</value>
+                                </replacement>
+                                <replacement>
+                                    <xpath>/TargetEndpoint/HTTPTargetConnection/VirtualHost/text()</xpath>
+                                    <token>^(.*)$</token>
+                                    <value>${targetEndpoint.url}</value>
+                                </replacement>
+                            </replacements>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+            <plugin>
+                <groupId>io.apigee.build-tools.enterprise4g</groupId>
+                <artifactId>apigee-edge-maven-plugin</artifactId>
+                <version>1.1.5</version>
+                <executions>
+                    <execution>
+                        <id>configure-bundle-step</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>configure</goal>
+                        </goals>
+                    </execution>
+                    <!--deploy bundle -->
+                    <execution>
+                        <id>deploy-bundle-step</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>deploy</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Configuration -->
+            <plugin>
+                <groupId>com.apigee.edge.config</groupId>
+                <artifactId>apigee-config-maven-plugin</artifactId>
+                <version>1.2</version>
+                <executions>
+                    <execution>
+                        <id>create-config-cache</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>caches</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>create-config-targetserver</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>targetservers</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>create-config-kvm</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>keyvaluemaps</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>create-config-apiproduct</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>apiproducts</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>create-config-developer</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>developers</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>create-config-app</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>apps</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.3.2</version>
+                <executions>
+                    <!-- npm install -->
+                    <execution>
+                        <id>npm-install</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>npm</executable>
+                            <commandlineArgs>install</commandlineArgs>
+                        </configuration>
+                    </execution>
+
+                    <!--run integration tests-->
+                    <execution>
+                        <id>apickli</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>node</executable>
+                            <commandlineArgs>
+                                ./node_modules/cucumber/bin/cucumber.js target/test/integration/features --tags ${api.testtag}
+                            </commandlineArgs>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+</project>

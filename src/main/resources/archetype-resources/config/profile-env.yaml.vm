@@ -1,0 +1,17 @@
+# Global profile["${env}"] configurations
+---
+apigee:
+  env: ${env}
+  org: ${mojo.org}
+  authtype: ${mojo.authtype}
+  options: validate
+  delay: 3000
+
+northbound:
+  domain: ${mojo.northboundUrl}
+  basePath: ${mojo.basepath}
+  virtualhost: ${mojo.virtualhost}
+
+targetEndpoint:
+  url: ${mojo.targetUrl}
+  successCodes: 200

@@ -1,0 +1,18 @@
+{
+    "tipoDeOperacion": "devolucion-referenciada",
+    "datos": {
+        "idTerminal": "7001",
+        "modoVenta": "PRD",
+        "numeroReferencia": 328986771996,
+        "numeroControl": "14062018_10",
+        "importeTotal": 1000.43,
+        "referenciaClienteUno": "Referencia1",
+        "referenciaClienteDos": "Referencia2",
+        "referenciaClienteTres": "Referencia3",
+        "referenciaClienteCuatro": "Referencia4",
+        "referenciaClienteCinco": "Referencia5",
+        "loteTransacciones": "Lote1",
+        "url": "",
+        "idioma": "ES"
+    }
+}

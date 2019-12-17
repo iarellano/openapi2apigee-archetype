@@ -1,0 +1,14 @@
+{
+    "tipoDeOperacion": "realizar-venta-promocion",
+    "datos": {
+        "idTerminal": "string-1-15",
+        "importeTotal": 123.52,
+        "modoVenta": "123",
+        "numeroPlastico": "1234456798746542",
+        "periodoExpiracion": 122,
+        "modoEntrada": "in",
+        "diferimientoInicial": 1,
+        "numeroPagos": 3,
+        "tipoPlanPagos": 1
+    }
+}

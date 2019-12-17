@@ -1,0 +1,55 @@
+{
+    "tipoDeOperacion": "preautorizar-promocion",
+    "datos": {
+        "idTerminal": "string-1-15",
+        "importeTotal": 9999999999999999.99,
+        "modoVenta": "ABC",
+        "numeroControl": "string-0-30",
+        "referenciaClienteUno": "string-0-30",
+        "referenciaClienteDos": "string-0-16",
+        "referenciaClienteTres": "string-0-30",
+        "referenciaClienteCuatro": "string-0-30",
+        "referenciaClienteCinco": "string-0-30",
+        "numeroPlastico": "string-1-20",
+        "periodoExpiracion": 1234,
+        "codigoSeguridad": 1234,
+        "modoEntrada": "string-1-25",
+        "loteTransacciones": "string-0-30",
+        "url": "string-0-200",
+        "idioma": "AB",
+        "criptogramaSeguridad": "string-0-40",
+        "criptogramaSCAVV": "string-0-40",
+        "estatusFraude3D": 123,
+        "eci_CodigoSeguridad": "AB",
+        "diferimientoInicial": 12,
+        "numeroPagos": 12,
+        "tipoPlanPagos": 12,
+        "idCyberSource": "string-0-40",
+        "subAfiliacion": "string-0-18",
+        "idAgregador": "string-0-19",
+        "domicilio": "string-0-20",
+        "codigoPostal": "str-0-9",
+        "telefono": "str-0-10",
+        "correo": "string-0-60",
+        "datosEntrega": {
+            "domicilio": "string-0-20",
+            "codigoPostal": "str-0-9",
+            "telefono": "str-0-10",
+            "correo": "string-0-60"
+        },
+        "departamentoTienda": "string-0-40",
+        "hostnameOrigen": "string-0-60",
+        "navegadorCliente": "string-0-60",
+        "nombreClienteFactura": "string-0-45",
+        "nombrePersona": "string-0-45",
+        "descripcionProductos": [
+            {
+                "numeroProducto": 1,
+                "producto": "string-0-19",
+                "cantidad": 123,
+                "precioUnitario": 9999.99
+            }
+        ]
+    }
+}
+
