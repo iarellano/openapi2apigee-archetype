@@ -30,7 +30,7 @@
     </Flows>
     <HTTPProxyConnection>
         <BasePath>${basepath}${deployment.suffix}</BasePath>
-        <VirtualHost />
+        <VirtualHost>default</VirtualHost>
     </HTTPProxyConnection>
     <RouteRule name="default">
         <TargetEndpoint>default</TargetEndpoint>

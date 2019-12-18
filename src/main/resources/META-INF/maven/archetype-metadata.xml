@@ -51,6 +51,12 @@ under the License.
         <requiredProperty key="targeturl"><defaultValue>${empty.property}</defaultValue></requiredProperty>
         <requiredProperty key="mockserver"><defaultValue>false</defaultValue></requiredProperty>
 
+        <requiredProperty key="config-options"><defaultValue>update</defaultValue></requiredProperty>
+        <requiredProperty key="config-exportdir"><defaultValue>target</defaultValue></requiredProperty>
+        <requiredProperty key="config-dir"><defaultValue>target/edge</defaultValue></requiredProperty>
+
+
+
         <requiredProperty key="edgeSetupFile"><defaultValue>${empty.property}</defaultValue></requiredProperty>
 
         <requiredProperty key="edgeSetup"><defaultValue>${empty.property}</defaultValue></requiredProperty>

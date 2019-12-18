@@ -255,6 +255,9 @@ class EnvSetup {
             envMap.put("proxyport", props.get("proxyport"))
             envMap.put("hosturl", props.get("hosturl"))
             envMap.put("apiversion", props.get("apiversion"))
+            envMap.put("config-options", props.get("config-options"))
+            envMap.put("config-exportdir", props.get("config-exportdir"))
+            envMap.put("config-dir", props.get("config-dir"))
             setupMap.put(env, envMap)
         }
         return setupMap

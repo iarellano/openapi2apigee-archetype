@@ -10,12 +10,11 @@ apigee:
   clientid: ${setupMap.get($env).get('clientid')}
   clientsecret: ${setupMap.get($env).get('clientsecret')}
   hosturl: ${setupMap.get($env).get('hosturl')}
-
-apigee:
+  apiversion: ${setupMap.get($env).get('apiversion')}
   config:
-    options: update
-    exportDir: target
-    dir: target/edge
+    options: ${setupMap.get($env).get('config-options')}
+    exportDir: ${setupMap.get($env).get('config-exportdir')}
+    dir: ${setupMap.get($env).get('config-dir')}
 
 northbound:
   domain: ${setupMap.get($env).get('proxydomain')}

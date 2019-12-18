@@ -6,7 +6,7 @@
     <groupId>${groupId}</groupId>
     <artifactId>${artifactId}</artifactId>
     <version>1</version>
-    <name>${mojo.proxyName}${deployment.suffix}</name>
+    <name>${artifactId}${deployment.suffix}</name>
     <packaging>pom</packaging>
 
     <pluginRepositories>
@@ -79,6 +79,25 @@
                                 <file>${project.basedir}/config/global-config.yaml</file>
                                 <file>${project.basedir}/config/profile-${apigee.profile}.yaml</file>
                             </files>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <property environment="env" />
+                                <echoproperties />
+                            </target>
                         </configuration>
                     </execution>
                 </executions>
