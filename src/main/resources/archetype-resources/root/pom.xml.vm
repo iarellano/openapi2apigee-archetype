@@ -69,7 +69,7 @@
                 <version>1.1.2</version>
                 <executions>
                     <execution>
-                        <id>read-global-properties</id>
+                        <id>read-external-global-properties</id>
                         <phase>validate</phase>
                         <goals>
                             <goal>read-project-properties</goal>
@@ -77,27 +77,19 @@
                         <configuration>
                             <files>
                                 <file>${project.basedir}/config/global-config.yaml</file>
-                                <file>${project.basedir}/config/profile-${apigee.profile}.yaml</file>
                             </files>
                         </configuration>
                     </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.6</version>
-                <executions>
                     <execution>
-                        <phase>process-resources</phase>
+                        <id>read-external-profile-properties</id>
+                        <phase>validate</phase>
                         <goals>
-                            <goal>run</goal>
+                            <goal>read-project-properties</goal>
                         </goals>
                         <configuration>
-                            <target>
-                                <property environment="env" />
-                                <echoproperties />
-                            </target>
+                            <files>
+                                <file>${project.basedir}/config/profile-${apigee.profile}.yaml</file>
+                            </files>
                         </configuration>
                     </execution>
                 </executions>

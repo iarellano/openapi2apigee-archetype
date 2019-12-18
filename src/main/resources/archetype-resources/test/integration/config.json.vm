@@ -1,0 +1,15 @@
+{
+    "parameters": {
+        "domain": "${proxydomain}",
+        "protocol": "${proxyprotocol}",
+        "port":  "${proxyport}",
+        "basepath": "/mock${basepath}${deployment.suffix}",
+        "apps": {
+            "${artifactId}-app-cicd${deployment.suffix}": {
+                "name": "${artifactId}-app-cicd${deployment.suffix}",
+                "appHeaderName": "Transaction-Id",
+                "appHeaderValue": "123456789"
+            }
+        }
+    }
+}

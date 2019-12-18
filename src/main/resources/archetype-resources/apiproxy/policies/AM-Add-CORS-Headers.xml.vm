@@ -12,5 +12,5 @@
         </Headers>
     </Add>
     <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
-    <AssignTo createNew="false" transport="http" type="response"/>
+    <AssignTo createNew="false" transport="${northbound.protocol}" type="response"/>
 </AssignMessage>
