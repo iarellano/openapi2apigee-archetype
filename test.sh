@@ -32,6 +32,5 @@ mvn archetype:generate \
   -Dtargeturl=https://httpbin.org \
   -Dmockserver=true
 
-
 cd ..
 

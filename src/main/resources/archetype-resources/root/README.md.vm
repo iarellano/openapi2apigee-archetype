@@ -1,96 +1,30 @@
 #set( $H = '#' )
 $H API Proxy ${artifactId}
 
-The project generated expects apigee credentials to como from environament variables APIGEE_USERNAME and APIGEE_PASSWORD
+The generated project expects apigee credentials to be available as environament variables APIGEE_USERNAME and APIGEE_PASSWORD
 
-$H$H$H Deploy API Proxy
+Property <code>deployment.suffix</code> if not provided is by default <code>-${user.name}</code>, for example say your name is <code>pancho</code> and if your
+proxy name is <code>oauth-v1</code> and your basepath is <code>oauth/v1</code> and you do not provide <code>deployment.suffix</code> then
+your proxy will be deployed ad <code>oauth-v1-pancho</code> and basepath <code>oauth/v1-pancho</code>
+
+
+$H$H$H Deploy API Proxy to test environment
 ```bash
-mvn -P test install -Ddeployment.suffix=
+mvn install -P test  -Ddeployment.suffix=
 ```
 
-$H$H$H Create apigee config entities
+#if ($mockserver == "true")
+$H$H$H Deploy mock server
+To deploy mock server to test environment
 ```bash
-mvn -P test,deploy install
+cd mock
+mvn install -P test
 ```
+#end
 
-$H$H$H Deploy resources that depend on API Proxy
+$H$H$H Run integration testing on test environment
+To run integration testing we need to activate profile integration-test and run maven to phase integration-test, this separation has been done
+to get away the problem of creating an apiproduct when the api proxy does not exists yet, in other words the very first time a api proxy is created and deployed.
 ```bash
-mvn -P test,post-deploy install
-```
-
-$H$H$H Run integration testing on API Proxy deployed by test profile
-```bash
-mvn -P test,integration verify
-```
-
-$H$H$H Directory Structure
-
-```
-├── build-utils
-│   └── groovy $H Groovy scripts to assist building proxies
-├── config $H Contains global configurations shared amongst API Proxies and Sharedflows
-├── lib $H Contains jars required for JavaCallouts
-└── src
-    ├── main
-    │   ├── gateway $H Contains API Proxies and Sharedflows 
-    │   │   ├── ${apiproxyName}
-    │   │   │   ├── apiproxy
-    │   │   │   │   ├── policies
-    │   │   │   │   ├── proxies
-    │   │   │   │   ├── resources
-    │   │   │   │   └── targets
-    │   │   │   ├── callout $H JavaCallout maven project
-    │   │   │   ├── config $H API Proxy specific configs
-    │   │   │   ├── edge $H API Proxy specific resources
-    │   │   │   │   ├── api
-    │   │   │   │   ├── env
-    │   │   │   │   │   ├── prod
-    │   │   │   │   │   └── test
-    │   │   │   │   └── org
-    │   │   │   ├── template-v1.iml
-    │   │   │   └── test
-    │   │   │       ├── edge $H API Proxy specific resources for integration testing only
-    │   │   │       ├── integration $H Apickli features
-    │   │   │       ├── performance $H JMeter files
-    │   │   │       └── unit $H JavaScript unit testing
-    │   └── resources
-    │       └── edge
-    │           ├── env
-    │           │   ├── prod
-    │           │   │   ├── kvms.yaml
-    │           │   │   └── targetServers.yaml
-    │           │   └── test
-    │           │       ├── caches.yaml
-    │           │       ├── kvms.yaml
-    │           │       └── targetServers.yaml
-    │           └── org
-    │               ├── apiProducts.yaml
-    │               ├── developerApps.yaml
-    │               └── developers.yaml
-    └── test
-        ├── gateway
-        │   ├── integration
-        │   │   └── features
-        │   │       ├── api.feature
-        │   │       ├── step_definitions
-        │   │       │   ├── apickli-gherkin.js
-        │   │       │   ├── developer-apps.js
-        │   │       │   └── json-path.js
-        │   │       └── support
-        │   │           ├── env.js
-        │   │           └── init.js
-        │   └── unit
-        │       ├── jsonComparer.js
-        │       ├── mockFactory.js
-        │       └── moduleLoader.js
-        └── resources
-            └── edge
-                └── org
-                    ├── apiProducts.yaml
-                    ├── developerApps.yaml
-                    ├── developers.yaml
-                    ├── kvms.yaml
-                    ├── maskconfigs.yaml
-                    └── test.json
-
+mvn integration-test -Ptest,integration-test -Ddeployment.suffix=
 ```

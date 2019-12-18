@@ -425,12 +425,18 @@ new FileWalker(new RootFilesMover()).walk(new File(projectDir, "root"))
 new FileWalker(new TemplateExecutor(outputDirectory, properties)).walk(projectDir)
 new FileWalker(new FileRenamer()).walk(projectDir)
 new FileWalker(new XmlFormater()).walk(projectDir)
-new Mocker().genMock(projectDir, specFile)
-
+if (!"true".equals(request.getProperties().get("$mockserver == \"true\""))) {
+    FileUtils.forceDelete(new File(projectDir, "mock"))
+} else {
+    new Mocker().genMock(projectDir, specFile)
+}
 new File(projectDir, "root").delete()
 if (!"true".equals(request.getProperties().get("enable-cors"))) {
     new File(projectDir, "apiproxy/policies/" + request.getProperties().get("cors-policy-name") + ".xml").delete()
 }
+
+
+
 
 
 
