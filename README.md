@@ -64,7 +64,7 @@ instruction for deploying and testing the apiproxy will be in generate README.mc
 Asuming you already have apigee edge account with two environmets test and prod and if you don't no problem, register for trial org at [apigee.com](https://apigee.com.) 
 
 
-To create an api proxy with mock server for the petstore spec:
+To create an api proxy with mock server for the petstore spec, go to your project folder where you want to create your project, then in your console:
 ```bash
 mvn archetype:generate \
   -DarchetypeGroupId=com.github.iarellano \
