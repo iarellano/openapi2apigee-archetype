@@ -1,0 +1,23 @@
+[
+  {
+    "name": "${artifactId}-product-cicd${deployment.suffix}",
+    "displayName": "${artifactId}-product-cicd${deployment.suffix}",
+    "description": "Product to test CICD on ${artifactId}${deployment.suffix} API Proxy",
+    "apiResources": [
+      "/**",
+      "/"
+    ],
+    "approvalType": "auto",
+    "attributes": [
+    ],
+    "environments":${envsArray}
+    ,
+    "proxies": [
+      "${artifactId}${deployment.suffix}"
+    ],
+    "quota": "10000",
+    "quotaInterval": "1",
+    "quotaTimeUnit": "month",
+    "scopes": ["openid"]
+  }
+]

@@ -1,11 +1,11 @@
 {
-  "name": "openapi-${mojo.proxyName}",
+  "name": "openapi-${artifactId}",
   "version": "1.0.0",
-  "description": "This is a sample server ${mojo.proxyName} server.",
+  "description": "This is a sample server ${artifactId}${deployment.suffix} server.",
   "scripts": {
-    "start": "node node_modules/@stoplight/prism-cli/dist/index.js mock -d api/${specFileName} --port=9000"
+    "start": "node node_modules/@stoplight/prism-cli/dist/index.js mock -d api/${specFileName} --port=$PORT"
   },
   "dependencies": {
      "@stoplight/prism-cli": "^3.2.1"
-   }
+  }
 }

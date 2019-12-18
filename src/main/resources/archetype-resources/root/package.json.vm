@@ -1,6 +1,6 @@
 {
-    "name": "${mojo.proxyName}",
-    "repository": "${mojo.proxyName}",
+    "name": "${artifactId}",
+    "repository": "${artifactId}",
     "version": "1.0.0",
     "devDependencies": {
         "fs-extra": "^7.0.1",

@@ -1,0 +1,9 @@
+[
+  {
+    "attributes": [],
+    "email": "${artifactId}-cicd${deployment.suffix}@integration.testing.com",
+    "firstName": "CICD",
+    "lastName": "NA",
+    "userName": "cicd"
+  }
+]

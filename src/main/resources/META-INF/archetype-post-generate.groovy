@@ -96,6 +96,35 @@ class OpenAPIV3ParserData extends OpenAPIV3Parser {
     }
 }
 
+class TemplateReplacer {
+
+    private final VelocityEngine velocityEngine
+
+    private final VelocityContext context
+
+    private final String basepath
+
+    TemplateReplacer(File rootTemplateFolder, Properties templateVariables) {
+        velocityEngine = new VelocityEngine()
+        context = new VelocityContext()
+        basepath = rootTemplateFolder.path
+        context.put("file.resource.loader.path", basepath)
+        context.put("file.resource.loader.cache", false)
+        context.put("velocimacro.library.autoreload", true)
+        for (String key: templateVariables.keySet()) {
+            context.put(key, templateVariables.get(key))
+        }
+    }
+
+    void merge(File file) {
+        String resource = file.path.substring(basepath.length() + 1)
+        Template template = velocityEngine.getTemplate(resource)
+        FileWriter fileWriter = new FileWriter(file)
+        template.merge(context, fileWriter)
+        fileWriter.close()
+    }
+}
+
 class APIProxyFlow {
 
     String name;
@@ -133,30 +162,16 @@ class FileWalker {
 
 class TemplateExecutor implements FileExecutor {
 
-    private final VelocityEngine velocityEngine
-
-    private final VelocityContext context
-
-    private final String basepath
+    private final TemplateReplacer templateRunner
 
     TemplateExecutor(File rootTemplateFolder, Properties templateVariables) {
-        velocityEngine = new VelocityEngine()
-        context = new VelocityContext()
-        basepath = rootTemplateFolder.path
-        context.put("file.resource.loader.path", basepath)
-        for (String key: templateVariables.keySet()) {
-            context.put(key, templateVariables.get(key))
-        }
+        templateRunner = new TemplateReplacer(rootTemplateFolder, templateVariables)
     }
 
     @Override
     void execute(File file) {
-        if (file.name.endsWith(".vm")) {
-            Template template = velocityEngine
-                    .getTemplate(file.path.substring(basepath.length() + 1))
-            FileWriter fileWriter = new FileWriter(file)
-            template.merge(context, fileWriter)
-            fileWriter.close()
+        if (file.name.endsWith(".vm") || "pom.xml".equals(file.name)) {
+            templateRunner.merge(file)
         }
     }
 }
@@ -173,7 +188,6 @@ class FileRenamer implements FileExecutor {
 class RootFilesMover implements FileExecutor {
     @Override
     void execute(File file) {
-        System.out.println("Moving file " + file.path)
         FileUtils.moveFile(file, new File(file.parentFile.parentFile.path + "/" + file.name))
     }
 }
@@ -208,14 +222,72 @@ class XmlFormater implements FileExecutor {
     }
 }
 
-String specLocation = request.getProperties().get("spec")
-String specAuthName = request.getProperties().get("spec.auth.name")
-String specAuthValue = request.getProperties().get("spec.auth.value")
-String specAuthType = request.getProperties().get("spec.auth.type")
-String[] envs = request.getProperties().get("envs").split(",")
+class EnvSetup {
+
+    private final Properties props;
+
+    EnvSetup(Properties props) {
+        this.props = props
+    }
+
+    private Map<String, Map<String, String>> getFromParameters() {
+        Map<String, Map<String, String>> setupMap = new HashMap<>()
+        for (String env : props.get("envs")) {
+            Map<String, String> envMap = new HashMap<>()
+            envMap.put("org", props.get("org"))
+            envMap.put("authtype", props.get("authtype"))
+            envMap.put("virtualhost", props.get("virtualhost"))
+            envMap.put("targeturl", props.get("targeturl"))
+            envMap.put("options", props.get("options"))
+            envMap.put("delay", props.get("delay"))
+            envMap.put("tokenurl", props.get("tokenurl"))
+            envMap.put("clientid", props.get("clientid"))
+            envMap.put("clientsecret", props.get("clientsecret"))
+            envMap.put("proxydomain", props.get("proxydomain"))
+            envMap.put("proxyprotocol", props.get("proxyprotocol"))
+            envMap.put("proxyport", props.get("proxyport"))
+            envMap.put("hosturl", props.get("hosturl"))
+            envMap.put("apiversion", props.get("apiversion"))
+            setupMap.put(env, envMap)
+        }
+        return setupMap
+    }
+
+    Map<String, Map<String, String>> getSetupMap() {
+        if (StringUtils.isNotBlank(props.getProperty("edgeSetupFile"))) {
+
+        } else {
+            return getFromParameters()
+        }
+    }
+}
 
 final OpenAPI openAPI;
 final String data;
+final String specLocation = request.getProperties().get("spec")
+final String specAuthName = request.getProperties().get("spec.auth.name")
+final String specAuthValue = request.getProperties().get("spec.auth.value")
+final String specAuthType = request.getProperties().get("spec.auth.type")
+final List<String> envs = Arrays.asList(request.getProperties().get("envs").split(","))
+final String jsonEnvs = "[\"".concat(String.join("\",\"", envs)).concat("\"]")
+URL specUrl = spec.matches("^(https?|file)://.*") ? new URL(spec) : new File(spec).toURI().toURL();
+
+final Properties properties = new Properties()
+properties.putAll(request.getProperties())
+properties.put("jsonEnvs", jsonEnvs)
+properties.put("envs", envs)
+
+
+List<String> keys = new ArrayList<>();
+for (String key: properties.keys()) {
+    if ('${empty.property}'.equals(properties.get(key))) {
+        keys.add(key)
+    }
+}
+for (String key: keys) {
+    properties.remove(key)
+}
+
 
 if (specLocation.matches("^https?://.*") && StringUtils.isNotBlank(specAuthType)) {
     AuthorizationValue authorizationValue = new AuthorizationValue(specAuthName, specAuthValue, specAuthType);
@@ -227,11 +299,6 @@ if (specLocation.matches("^https?://.*") && StringUtils.isNotBlank(specAuthType)
     openAPI = parser.readWithInfo(spec, (List)null).getOpenAPI();
     data = ( (OpenAPIV3ParserData) parser ).getSpecData();
 }
-
-Properties properties = new Properties()
-properties.putAll(request.getProperties())
-properties.put("envs", envs)
-
 
 List<APIProxyFlow> flows = new ArrayList<>()
 for (String path: openAPI.getPaths().keySet()) {
@@ -245,23 +312,52 @@ for (String path: openAPI.getPaths().keySet()) {
         flows.add(flow)
     }
 }
-
 properties.put("flows", flows)
-
+EnvSetup envSetup = new EnvSetup(properties)
+properties.put("setupMap", envSetup.getSetupMap())
 
 File outputDirectory = new File(request.outputDirectory)
+File projectDir = new File(outputDirectory, request.artifactId)
+
+File docDir = new File(projectDir, "doc")
+docDir.mkdirs()
+File specFile = new File(docDir, new File(specUrl.getFile()).getName())
+properties.put("specFileName", specFile.getName())
+FileWriter fw = new FileWriter(specFile)
+fw.write(data)
+fw.close()
+
+FileUtils.copyFile(specFile, new File(projectDir, "mock/apiproxy/resources/hosted/api/"+specFile.name))
+File profileFile = new File(projectDir, "config/profile-env.yaml.vm")
+File _envDir = new File(projectDir, "edge/_env")
+for (String env: envs) {
+
+    FileUtils.copyFile(profileFile, new File(projectDir, String.format("config/profile-%s.yaml.vm", env)))
+    File envDir = new File(projectDir, "edge/env/".concat(env))
+    envDir.mkdirs()
+    TemplateReplacer templateReplacer = new TemplateReplacer(outputDirectory, properties)
+    properties.put("env", env)
+    for (File configFile: _envDir.listFiles()) {
+        if (configFile.isFile()) {
+            FileUtils.copyFileToDirectory(configFile, envDir)
+            templateReplacer.merge(new File(envDir, configFile.name))
+        }
+    }
+}
+
+profileFile.delete()
+FileUtils.forceDelete(_envDir)
 
 System.out.println("Spec: " + specLocation)
 System.out.println("Output dir: " + outputDirectory.path)
 
-System.out.println("Files moved 1")
-new FileWalker(new RootFilesMover()).walk(new File(outputDirectory, request.artifactId + "/root"))
-new FileWalker(new TemplateExecutor(outputDirectory, properties)).walk(outputDirectory)
+new FileWalker(new RootFilesMover()).walk(new File(projectDir, "root"))
+new FileWalker(new TemplateExecutor(outputDirectory, properties)).walk(projectDir)
 System.out.println("Files moved 2")
-new FileWalker(new FileRenamer()).walk(outputDirectory)
-new FileWalker(new XmlFormater()).walk(outputDirectory)
+new FileWalker(new FileRenamer()).walk(projectDir)
+new FileWalker(new XmlFormater()).walk(projectDir)
 
-new File(outputDirectory, request.artifactId + "/root").delete()
+new File(projectDir, "root").delete()
 
 
 

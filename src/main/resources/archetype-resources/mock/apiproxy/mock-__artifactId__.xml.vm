@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <APIProxy revision="1" name="ht">
-    <BasePaths>/mock${mojo.basepath}</BasePaths>
+    <BasePaths>/mock${basepath}${deployment.suffix}</BasePaths>
     <ConfigurationVersion majorVersion="4" minorVersion="0"/>
-    <DisplayName>${mojo.proxyName}-mock</DisplayName>
-    <Description>Mock backend for ${mojo.proxyName}</Description>
+    <DisplayName>${artifactId}${deployment.suffix}-mock</DisplayName>
+    <Description>Mock backend for ${artifactId}${deployment.suffix}</Description>
     <Policies>
         <Policy>add-cors</Policy>
     </Policies>

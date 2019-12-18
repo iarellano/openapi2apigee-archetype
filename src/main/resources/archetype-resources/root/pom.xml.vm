@@ -25,27 +25,30 @@
     </pluginRepositories>
 
     <properties>
-        <proxy.basename>${mojo.proxyName}</proxy.basename>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
         <deployment.suffix>-${user.name}</deployment.suffix>
+        <proxy.basename>${artifactId}${deployment.suffix}</proxy.basename>
+
         <apigee.username>${env.APIGEE_USERNAME}</apigee.username>
         <apigee.password>${env.APIGEE_PASSWORD}</apigee.password>
         <apigee.config.dir>${project.basedir}/target/edge</apigee.config.dir>
     </properties>
 
     <profiles>
-        #foreach($env in $mojo.envs)
+        #foreach($env in $envs)
             <profile>
                 <id>$env</id>
                 <properties>
                     <apigee.profile>$env</apigee.profile>
                     <apigee.env>$env</apigee.env>
-                    <api.testtag>@services</api.testtag>
+                    <api.testtag>@$env</api.testtag>
                 </properties>
             </profile>
         #end
     </profiles>
+
     <build>
         <pluginManagement>
             <plugins>
@@ -161,7 +164,7 @@
             <plugin>
                 <groupId>io.apigee.build-tools.enterprise4g</groupId>
                 <artifactId>apigee-edge-maven-plugin</artifactId>
-                <version>1.1.5</version>
+                <version>${apigee-deploy-plugin-version}</version>
                 <executions>
                     <execution>
                         <id>configure-bundle-step</id>
@@ -185,7 +188,7 @@
             <plugin>
                 <groupId>com.apigee.edge.config</groupId>
                 <artifactId>apigee-config-maven-plugin</artifactId>
-                <version>1.2</version>
+                <version>${apigee-config-maven-plugin}</version>
                 <executions>
                     <execution>
                         <id>create-config-cache</id>

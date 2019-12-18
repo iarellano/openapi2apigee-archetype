@@ -2,16 +2,28 @@
 ---
 apigee:
   env: ${env}
-  org: ${mojo.org}
-  authtype: ${mojo.authtype}
-  options: validate
-  delay: 3000
+  org: ${setupMap.get($env).get('org')}
+  authtype: ${setupMap.get($env).get('authtype')}
+  options: ${setupMap.get($env).get('options')}
+  delay: ${setupMap.get($env).get('delay')}
+  tokenurl: ${setupMap.get($env).get('tokenurl')}
+  clientid: ${setupMap.get($env).get('clientid')}
+  clientsecret: ${setupMap.get($env).get('clientsecret')}
+  hosturl: ${setupMap.get($env).get('hosturl')}
+
+apigee:
+  config:
+    options: update
+    exportDir: target/test
+    dir: target/edge
 
 northbound:
-  domain: ${mojo.northboundUrl}
-  basePath: ${mojo.basepath}
-  virtualhost: ${mojo.virtualhost}
+  domain: ${setupMap.get($env).get('proxydomain')}
+  protocol: ${setupMap.get($env).get('proxyprotocol')}
+  port: ${setupMap.get($env).get('proxyport')}
+  basePath: ${basepath}
+  virtualhost: ${setupMap.get($env).get('virtualhost')}
 
 targetEndpoint:
-  url: ${mojo.targetUrl}
+  url: ${setupMap.get($env).get('targeturl')}
   successCodes: 200

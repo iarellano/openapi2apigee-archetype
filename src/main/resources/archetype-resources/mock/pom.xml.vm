@@ -3,10 +3,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>${mojo.groupId}</groupId>
-    <artifactId>${mojo.proxyName}-mock</artifactId>
+    <groupId>${groupId}</groupId>
+    <artifactId>${artifactId}-mock</artifactId>
     <version>1</version>
-    <name>${mojo.proxyName}-mock</name>
+    <name>${artifactId}-mock</name>
     <packaging>pom</packaging>
 
     <pluginRepositories>
@@ -25,27 +25,34 @@
     </pluginRepositories>
 
     <properties>
-        <proxy.basename>${mojo.proxyName}-mock</proxy.basename>
+        <proxy.basename>${artifactId}${deployment.suffix}-mock</proxy.basename>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <deployment.suffix>-${user.name}</deployment.suffix>
+        <proxy.basename>${artifactId}${deployment.suffix}-mock</proxy.basename>
+
         <apigee.username>${env.APIGEE_USERNAME}</apigee.username>
         <apigee.password>${env.APIGEE_PASSWORD}</apigee.password>
-        <northbound.virtualhost>${mojo.virtualhost}</northbound.virtualhost>
     </properties>
 
     <profiles>
-        #foreach($env in $mojo.envs)
+        #foreach($env in $envs)
             <profile>
                 <id>$env</id>
                 <properties>
                     <apigee.profile>$env</apigee.profile>
                     <apigee.env>$env</apigee.env>
-                    <apigee.org>${mojo.org}</apigee.org>
-                    <apigee.authtype>${mojo.authtype}</apigee.authtype>
-                    <apigee.options>validate</apigee.options>
-                    <apigee.delay>3000</apigee.delay>
-                    <apigee.hosturl>${mojo.hosturl}</apigee.hosturl>
-                    <apigee.apiversion>v1</apigee.apiversion>
+                    <apigee.org>${setupMap.get($env).get("org")}</apigee.org>
+                    <apigee.authtype>${setupMap.get($env).get("authtype")}</apigee.authtype>
+                    <apigee.options>${setupMap.get($env).get("options")}</apigee.options>
+                    <apigee.delay>${setupMap.get($env).get("delay")}</apigee.delay>
+                    <apigee.hosturl>${setupMap.get($env).get("hosturl")}</apigee.hosturl>
+                    <apigee.apiversion>${setupMap.get($env).get("apiversion")}</apigee.apiversion>
+                    <apigee.tokenurl>${setupMap.get($env).get('tokenurl')}</apigee.tokenurl>
+                    <apigee.clientid>${setupMap.get($env).get('clientid')}</apigee.clientid>
+                    <apigee.clientsecret>${setupMap.get($env).get('clientsecret')}</apigee.clientsecret>
+                    <virtualhost>${setupMap.get($env).get('virtualhost')}</virtualhost>
                 </properties>
             </profile>
         #end
@@ -122,7 +129,7 @@
                                 <replacement>
                                     <xpath>/ProxyEndpoint/HTTPProxyConnection/VirtualHost/text()</xpath>
                                     <token>^(.*)$</token>
-                                    <value>${northbound.virtualhost}</value>
+                                    <value>${virtualhost}</value>
                                 </replacement>
                             </replacements>
                         </configuration>
@@ -134,7 +141,7 @@
             <plugin>
                 <groupId>io.apigee.build-tools.enterprise4g</groupId>
                 <artifactId>apigee-edge-maven-plugin</artifactId>
-                <version>1.1.5</version>
+                <version>${apigee-deploy-plugin-version}</version>
                 <executions>
                     <execution>
                         <id>configure-bundle-step</id>

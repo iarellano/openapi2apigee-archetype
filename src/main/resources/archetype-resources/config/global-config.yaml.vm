@@ -1,7 +1,7 @@
 # Global common configuration
 ---
 apigee:
-  hosturl: ${mojo.hosturl}
-  apiversion: v1
+  hosturl: ${hosturl}
+  apiversion: ${apiversion}
   config:
     options: create

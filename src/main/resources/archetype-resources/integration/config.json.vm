@@ -1,6 +1,0 @@
-{
-    "parameters": {
-        "northboundUrl": "${mojo.northboundUrl}",
-        "basepath": "/mock${mojo.basepath}"
-    }
-}

@@ -1,0 +1,15 @@
+{
+  "${artifactId}-cicd${deployment.suffix}@integration.testing.com": [
+    {
+      "apiProducts": [
+        "${artifactId}-product-cicd${deployment.suffix}"
+      ],
+      "callbackUrl": "",
+      "name": "oauth-v1-tpp-app-cicd",
+      "scopes": [
+      ],
+      "attributes": [
+      ]
+    }
+  ]
+}
