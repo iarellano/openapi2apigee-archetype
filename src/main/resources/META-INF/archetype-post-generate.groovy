@@ -421,12 +421,8 @@ for (String env: envs) {
 profileFile.delete()
 FileUtils.forceDelete(_envDir)
 
-//System.out.println("Spec: " + specLocation)
-//System.out.println("Output dir: " + outputDirectory.path)
-
 new FileWalker(new RootFilesMover()).walk(new File(projectDir, "root"))
 new FileWalker(new TemplateExecutor(outputDirectory, properties)).walk(projectDir)
-//System.out.println("Files moved 2")
 new FileWalker(new FileRenamer()).walk(projectDir)
 new FileWalker(new XmlFormater()).walk(projectDir)
 new Mocker().genMock(projectDir, specFile)
