@@ -24,6 +24,11 @@ module.exports = function () {
         apickli.addRequestHeader("hmac-issued", issued);
     };
 
+    this.Given(/^I set HMAC headers for application (.*)$/, function (appParameter, callback) {
+        setupCommon(this.apickli, "", this.apickli.replaceVariables(appParameter), "");
+        callback();
+    });
+
     this.When(/^I use HMAC for application (.*) and GET (.*)$/, function (appParameter, pathSuffix, callback) {
         setupCommon(this.apickli, "GET", this.apickli.replaceVariables(appParameter), pathSuffix);
         this.apickli.get(pathSuffix, function(err, response) {
