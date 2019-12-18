@@ -242,6 +242,7 @@ class EnvSetup {
         for (String env : props.get("envs")) {
             Map<String, String> envMap = new HashMap<>()
             envMap.put("org", props.get("org"))
+            envMap.put("env", env)
             envMap.put("authtype", props.get("authtype"))
             envMap.put("virtualhost", props.get("virtualhost"))
             envMap.put("targeturl", props.get("targeturl"))
@@ -258,6 +259,12 @@ class EnvSetup {
             envMap.put("config-options", props.get("config-options"))
             envMap.put("config-exportdir", props.get("config-exportdir"))
             envMap.put("config-dir", props.get("config-dir"))
+            if ("true".equals(props.get("mockserver"))) {
+                String targetUrl = props.get("proxyprotocol") + "://" + props.get("proxydomain") + ":" +  props.get("proxyport") + '/mock' +  props.get("basepath")
+                envMap.put("targeturl", targetUrl)
+            } else {
+                envMap.put("targeturl", props.get("targeturl"))
+            }
             setupMap.put(env, envMap)
         }
         return setupMap
@@ -278,7 +285,7 @@ class Mocker {
         configurator.setInputSpec(fileSpec.path)
         configurator.setGenerateAliasAsModel(true)
         configurator.setGeneratorName("nodejs-express-server")
-        configurator.setVerbose(true)
+        configurator.setVerbose(false)
         configurator.setLogToStderr(true)
         configurator.setOutputDir(new File(projectDir, "mock/apiproxy/resources/hosted").getAbsolutePath())
         configurator.setValidateSpec(false)
@@ -320,6 +327,12 @@ class Mocker {
         fileWriter.write(yml)
         fileWriter.close()
     }
+}
+
+void log(String message) {
+    println("--------------------------------------------- BEGIN MESSAGE ---------------------------------------------")
+    println(message)
+    println("--------------------------------------------- ENd MESSAGE -----------------------------------------------")
 }
 
 final OpenAPI openAPI
@@ -391,15 +404,16 @@ File profileFile = new File(projectDir, "config/profile-env.yaml.vm")
 File _envDir = new File(projectDir, "edge/_env")
 for (String env: envs) {
 
-    FileUtils.copyFile(profileFile, new File(projectDir, String.format("config/profile-%s.yaml.vm", env)))
+    File targetProfileFile = new File(projectDir, String.format("config/profile-%s.yaml.vm", env))
+    FileUtils.copyFile(profileFile, targetProfileFile)
     File envDir = new File(projectDir, "edge/env/".concat(env))
     envDir.mkdirs()
-    TemplateReplacer templateReplacer = new TemplateReplacer(outputDirectory, properties)
     properties.put("env", env)
+    TemplateReplacer templateReplacer = new TemplateReplacer(outputDirectory, properties)
+    templateReplacer.merge(targetProfileFile)
     for (File configFile: _envDir.listFiles()) {
         if (configFile.isFile()) {
             FileUtils.copyFileToDirectory(configFile, envDir)
-            templateReplacer.merge(new File(envDir, configFile.name))
         }
     }
 }
@@ -418,6 +432,9 @@ new FileWalker(new XmlFormater()).walk(projectDir)
 new Mocker().genMock(projectDir, specFile)
 
 new File(projectDir, "root").delete()
+if (!"true".equals(request.getProperties().get("enable-cors"))) {
+    new File(projectDir, "apiproxy/policies/" + request.getProperties().get("cors-policy-name") + ".xml").delete()
+}
 
 
 

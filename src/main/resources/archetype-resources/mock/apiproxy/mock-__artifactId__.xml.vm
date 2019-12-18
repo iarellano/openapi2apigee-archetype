@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <APIProxy revision="1" name="ht">
-    <BasePaths>/mock${basepath}${deployment.suffix}</BasePaths>
+    <BasePaths>/mock${basepath}</BasePaths>
     <ConfigurationVersion majorVersion="4" minorVersion="0"/>
-    <DisplayName>${artifactId}${deployment.suffix}-mock</DisplayName>
-    <Description>Mock backend for ${artifactId}${deployment.suffix}</Description>
+    <DisplayName>${artifactId}-mock</DisplayName>
+    <Description>Mock backend for ${artifactId}</Description>
     <Policies>
         <Policy>add-cors</Policy>
     </Policies>

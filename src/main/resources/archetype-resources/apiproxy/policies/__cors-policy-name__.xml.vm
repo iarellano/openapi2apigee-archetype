@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<AssignMessage async="false" continueOnError="false" enabled="true" name="${mojo.corsPolicyName}">
-    <DisplayName>${mojo.corsPolicyName}</DisplayName>
+<AssignMessage async="false" continueOnError="false" enabled="true" name="${cors-policy-name}">
+    <DisplayName>${cors-policy-name}</DisplayName>
     <FaultRules/>
     <Properties/>
     <Add>

@@ -3,15 +3,7 @@
     <Description/>
     <FaultRules/>
     <PreFlow name="PreFlow">
-        #if ($mojo.extractVariables)
-            <Request>
-                <Step>
-                    <Name>$mojo.extractPolicyName</Name>
-                </Step>
-            </Request>
-        #else
-            <Request/>
-        #end
+        <Request/>
         <Response/>
     </PreFlow>
     <PostFlow name="PostFlow">

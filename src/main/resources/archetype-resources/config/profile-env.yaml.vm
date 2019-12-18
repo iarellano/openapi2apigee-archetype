@@ -1,7 +1,7 @@
 # Global profile["${env}"] configurations
 ---
 apigee:
-  env: ${env}
+  env: ${setupMap.get($env).get('env')}
   org: ${setupMap.get($env).get('org')}
   authtype: ${setupMap.get($env).get('authtype')}
   options: ${setupMap.get($env).get('options')}

@@ -12,7 +12,7 @@
     </PostFlow>
     <Flows/>
     <HTTPProxyConnection>
-        <BasePath>/mock${basepath}${deployment.suffix}</BasePath>
+        <BasePath>/mock${basepath}</BasePath>
         <VirtualHost>default</VirtualHost>
     </HTTPProxyConnection>
     <RouteRule name="default">

@@ -63,6 +63,8 @@ under the License.
 
         <requiredProperty key="apigee-deploy-plugin-version"><defaultValue>1.1.7</defaultValue></requiredProperty>
         <requiredProperty key="apigee-config-maven-plugin"><defaultValue>1.3.7</defaultValue></requiredProperty>
+        <requiredProperty key="cors-policy-name"><defaultValue>AM-AddCORS</defaultValue></requiredProperty>
+        <requiredProperty key="enable-cors"><defaultValue>true</defaultValue></requiredProperty>
     </requiredProperties>s
 
     <fileSets>

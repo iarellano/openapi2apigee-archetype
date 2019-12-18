@@ -25,14 +25,13 @@ for (var developer in devApps) {
     }
 }
 
-console.log(JSON.stringify(config, null, 4))
-
 var domain = config.parameters.domain + ":" + config.parameters.port;
 var protocol = config.parameters.protocol;
 var basepath = config.parameters.basepath;
 
 
-console.log('api parameters: [' + domain + ', ' + basepath + ']');
+console.log('api parameters: [' + protocol + ', ' + domain + ', ' + basepath + ']');
+console.log('api baseurl: [' + protocol + '://' + domain + basepath + ']');
 
 module.exports = function() {
     // cleanup before every scenario

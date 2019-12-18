@@ -3,7 +3,7 @@
         "domain": "${proxydomain}",
         "protocol": "${proxyprotocol}",
         "port":  "${proxyport}",
-        "basepath": "/mock${basepath}${deployment.suffix}",
+        "basepath": "${basepath}${deployment.suffix}",
         "apps": {
             "${artifactId}-app-cicd${deployment.suffix}": {
                 "name": "${artifactId}-app-cicd${deployment.suffix}",

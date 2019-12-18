@@ -4,10 +4,10 @@
     <FaultRules/>
     <PreFlow name="PreFlow">
         <Request/>
-        #if ($mojo.corsEnabled)
+        #if ($enable-cors == "true")
         <Response>
             <Step>
-                <Name>$mojo.corsPolicyName</Name>
+                <Name>${cors-policy-name}</Name>
             </Step>
         </Response>
         #else

@@ -13,7 +13,7 @@ mkdir -p test
 
 cd test
 
-mvn -X archetype:generate \
+mvn archetype:generate \
   -DarchetypeGroupId=com.github.iarellano \
   -DarchetypeArtifactId=openapi2apigee-archetype \
   -DinteractiveMode=false \

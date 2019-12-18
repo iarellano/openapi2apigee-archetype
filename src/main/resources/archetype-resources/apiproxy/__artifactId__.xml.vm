@@ -9,8 +9,8 @@
     #end
     <Basepaths>${basepath}${deployment.suffix}</Basepaths>
     <Policies>
-        #if ($mojo.corsEnabled)
-            <Policy>$mojo.corsPolicyName</Policy>
+        #if($enable-cors == "true")
+            <Policy>$cors-policy-name</Policy>
         #end
     </Policies>
     <ProxyEndpoints>
