@@ -14,7 +14,7 @@ apigee:
 apigee:
   config:
     options: update
-    exportDir: target/test
+    exportDir: target
     dir: target/edge
 
 northbound:

@@ -10,7 +10,7 @@
     "approvalType": "auto",
     "attributes": [
     ],
-    "environments":${envsArray}
+    "environments":${jsonEnvs}
     ,
     "proxies": [
       "${artifactId}${deployment.suffix}"
@@ -18,6 +18,6 @@
     "quota": "10000",
     "quotaInterval": "1",
     "quotaTimeUnit": "month",
-    "scopes": ["openid"]
+    "scopes": []
   }
 ]

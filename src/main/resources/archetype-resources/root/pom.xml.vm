@@ -3,8 +3,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>${mojo.groupId}</groupId>
-    <artifactId>${mojo.proxyName}</artifactId>
+    <groupId>${groupId}</groupId>
+    <artifactId>${artifactId}</artifactId>
     <version>1</version>
     <name>${mojo.proxyName}${deployment.suffix}</name>
     <packaging>pom</packaging>
@@ -111,7 +111,7 @@
                                         <include>test/integration/**</include>
                                         <include>edge/org/**</include>
                                         <include>edge/env/${apigee.env}/**</include>
-                                        <include>edge/api/${mojo.proxyName}/**</include>
+                                        <include>edge/api/${artifactId}/**</include>
                                     </includes>
                                 </resource>
                             </resources>

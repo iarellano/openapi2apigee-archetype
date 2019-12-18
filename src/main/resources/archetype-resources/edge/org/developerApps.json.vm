@@ -5,7 +5,7 @@
         "${artifactId}-product-cicd${deployment.suffix}"
       ],
       "callbackUrl": "",
-      "name": "oauth-v1-tpp-app-cicd",
+      "name": "${artifactId}-app-cicd${deployment.suffix}",
       "scopes": [
       ],
       "attributes": [
