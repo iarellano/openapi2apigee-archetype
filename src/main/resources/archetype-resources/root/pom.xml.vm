@@ -43,7 +43,7 @@
                 <properties>
                     <apigee.profile>$env</apigee.profile>
                     <apigee.env>$env</apigee.env>
-                    <api.testtag>@$env</api.testtag>
+                    <api.testtag>@apiproxy,@services,@$env</api.testtag>
                 </properties>
             </profile>
         #end

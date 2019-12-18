@@ -20,6 +20,7 @@ Feature: API proxy endpoints
     When I ${flow.verb} ${flow.path.replaceAll("\{.*?\}", "1")}
 #end
     Then response code should be 200
+
 #end
 
  
