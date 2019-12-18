@@ -252,7 +252,7 @@ class EnvSetup {
             envMap.put("clientid", props.get("clientid"))
             envMap.put("clientsecret", props.get("clientsecret"))
             envMap.put("proxydomain", props.get("proxydomain"))
-            envMap.put("proxyprotocol", props.get("proxyprotocol"))
+            envMap.put("proxyscheme", props.get("proxyscheme"))
             envMap.put("proxyport", props.get("proxyport"))
             envMap.put("hosturl", props.get("hosturl"))
             envMap.put("apiversion", props.get("apiversion"))
@@ -260,7 +260,7 @@ class EnvSetup {
             envMap.put("config-exportdir", props.get("config-exportdir"))
             envMap.put("config-dir", props.get("config-dir"))
             if ("true".equals(props.get("mockserver"))) {
-                String targetUrl = props.get("proxyprotocol") + "://" + props.get("proxydomain") + ":" +  props.get("proxyport") + '/mock' +  props.get("basepath")
+                String targetUrl = props.get("proxyscheme") + "://" + props.get("proxydomain") + ":" +  props.get("proxyport") + '/mock' +  props.get("basepath")
                 envMap.put("targeturl", targetUrl)
             } else {
                 envMap.put("targeturl", props.get("targeturl"))

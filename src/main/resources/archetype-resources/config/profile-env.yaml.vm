@@ -18,7 +18,7 @@ apigee:
 
 northbound:
   domain: ${setupMap.get($env).get('proxydomain')}
-  protocol: ${setupMap.get($env).get('proxyprotocol')}
+  protocol: ${setupMap.get($env).get('proxyscheme')}
   port: ${setupMap.get($env).get('proxyport')}
   basePath: ${basepath}
   virtualhost: ${setupMap.get($env).get('virtualhost')}

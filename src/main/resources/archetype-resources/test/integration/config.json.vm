@@ -1,7 +1,7 @@
 {
     "parameters": {
         "domain": "${proxydomain}",
-        "protocol": "${proxyprotocol}",
+        "protocol": "${proxyscheme}",
         "port":  "${proxyport}",
         "basepath": "${basepath}${deployment.suffix}",
         "apps": {
