@@ -19,6 +19,7 @@ apigee:
 northbound:
   domain: ${setupMap.get($profile).get('proxydomain')}
   protocol: ${setupMap.get($profile).get('proxyscheme')}
+  scheme: ${setupMap.get($profile).get('proxyscheme')}
   port: ${setupMap.get($profile).get('proxyport')}
   basePath: ${basepath}
   virtualhost: ${setupMap.get($profile).get('virtualhost')}
@@ -26,3 +27,14 @@ northbound:
 targetEndpoint:
   url: ${setupMap.get($profile).get('targeturl')}
   successCodes: 200
+
+integration:
+  format: --format json:${project.build.directory}/integration-test-result.json
+  outputDir: ${project.build.directory}
+  outputFile:
+
+performance:
+  testData: testdata.csv
+  threads: 1
+  loopCount: 4
+  rampUpPeriodSecs: 1

@@ -1,6 +1,8 @@
 .idea
 test.sh
-test/
+complex-test.sh
+setup.yaml
+src/test-bkp
 target/
 pom.xml.tag
 pom.xml.releaseBackup

@@ -59,30 +59,48 @@
                         <executions>
                             <execution>
                                 <id>create-config-apiproduct</id>
-                                <phase>integration-test</phase>
+                                <phase>verify</phase>
                                 <goals>
                                     <goal>apiproducts</goal>
                                 </goals>
                             </execution>
                             <execution>
                                 <id>create-config-developer</id>
-                                <phase>integration-test</phase>
+                                <phase>verify</phase>
                                 <goals>
                                     <goal>developers</goal>
                                 </goals>
                             </execution>
                             <execution>
                                 <id>create-config-app</id>
-                                <phase>integration-test</phase>
+                                <phase>verify</phase>
                                 <goals>
                                     <goal>apps</goal>
                                 </goals>
                             </execution>
                             <execution>
                                 <id>get-app-keys</id>
-                                <phase>integration-test</phase>
+                                <phase>verify</phase>
                                 <goals>
                                     <goal>exportAppKeys</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>generate-sources</id>
+                                <phase>verify</phase>
+                                <configuration>
+                                    <tasks>
+                                        <mkdir dir="${project.build.directory}/results/integration"/>
+                                    </tasks>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
                                 </goals>
                             </execution>
                         </executions>
@@ -96,18 +114,52 @@
                             <!--run integration tests-->
                             <execution>
                                 <id>apickli</id>
-                                <phase>integration-test</phase>
+                                <phase>verify</phase>
                                 <goals>
                                     <goal>exec</goal>
                                 </goals>
                                 <configuration>
                                     <executable>node</executable>
                                     <commandlineArgs>
-                                        ./node_modules/cucumber/bin/cucumber.js target/test/integration/features --tags ${api.testtag}
+                                        ./node_modules/cucumber/bin/cucumber.js target/test/integration/features --format json:${project.build.directory}/results/integration/test.json ${integration.format} --tags ${api.testtag}
                                     </commandlineArgs>
                                 </configuration>
                             </execution>
                         </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>performance-test</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.lazerycode.jmeter</groupId>
+                        <artifactId>jmeter-maven-plugin</artifactId>
+                        <version>2.2.0</version>
+                        <executions>
+                            <execution>
+                                <id>jmeter-tests</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>jmeter</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <testFilesDirectory>target/test/performance</testFilesDirectory>
+                            <testResultsTimestamp>false</testResultsTimestamp>
+                            <resultsDirectory>${project.build.directory}/results/performance</resultsDirectory>
+                            <ignoreResultFailures>true</ignoreResultFailures>
+                            <suppressJMeterOutput>false</suppressJMeterOutput>
+                            <propertiesUser>
+                                <testData>${performance.testData}</testData>
+                                <threads>${performance.threads}</threads>
+                                <loopCount>${performance.loopCount}</loopCount>
+                                <rampUpPeriodSecs>${performance.rampUpPeriodSecs}</rampUpPeriodSecs>
+                            </propertiesUser>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
@@ -183,9 +235,9 @@
                                     <filtering>true</filtering>
                                     <includes>
                                         <include>apiproxy/**</include>
-                                        <include>test/integration/**</include>
-                                        <include>edge/org/**</include>
                                         <include>edge/api/${artifactId}/**</include>
+                                        <include>edge/org/**</include>
+                                        <include>test/**</include>
                                     </includes>
                                 </resource>
                             </resources>
