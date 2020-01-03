@@ -37,24 +37,26 @@
     </properties>
 
     <profiles>
-        #foreach($env in $envs)
+        #foreach($profile in $profiles)
+            #if ("true" == $setupMap.get($profile).get("mockserver"))
             <profile>
-                <id>$env</id>
+                <id>$profile</id>
                 <properties>
-                    <apigee.profile>$env</apigee.profile>
-                    <apigee.env>$env</apigee.env>
-                    <apigee.org>${setupMap.get($env).get("org")}</apigee.org>
-                    <apigee.authtype>${setupMap.get($env).get("authtype")}</apigee.authtype>
-                    <apigee.options>${setupMap.get($env).get("options")}</apigee.options>
-                    <apigee.delay>${setupMap.get($env).get("delay")}</apigee.delay>
-                    <apigee.hosturl>${setupMap.get($env).get("hosturl")}</apigee.hosturl>
-                    <apigee.apiversion>${setupMap.get($env).get("apiversion")}</apigee.apiversion>
-                    <apigee.tokenurl>${setupMap.get($env).get('tokenurl')}</apigee.tokenurl>
-                    <apigee.clientid>${setupMap.get($env).get('clientid')}</apigee.clientid>
-                    <apigee.clientsecret>${setupMap.get($env).get('clientsecret')}</apigee.clientsecret>
-                    <virtualhost>${setupMap.get($env).get('virtualhost')}</virtualhost>
+                    <apigee.profile>$profile</apigee.profile>
+                    <apigee.env>${setupMap.get($profile).get("env")}</apigee.env>
+                    <apigee.org>${setupMap.get($profile).get("org")}</apigee.org>
+                    <apigee.authtype>${setupMap.get($profile).get("authtype")}</apigee.authtype>
+                    <apigee.options>${setupMap.get($profile).get("options")}</apigee.options>
+                    <apigee.delay>${setupMap.get($profile).get("delay")}</apigee.delay>
+                    <apigee.hosturl>${setupMap.get($profile).get("hosturl")}</apigee.hosturl>
+                    <apigee.apiversion>${setupMap.get($profile).get("apiversion")}</apigee.apiversion>
+                    <apigee.tokenurl>${setupMap.get($profile).get('tokenurl')}</apigee.tokenurl>
+                    <apigee.clientid>${setupMap.get($profile).get('clientid')}</apigee.clientid>
+                    <apigee.clientsecret>${setupMap.get($profile).get('clientsecret')}</apigee.clientsecret>
+                    <virtualhost>${setupMap.get($profile).get('virtualhost')}</virtualhost>
                 </properties>
             </profile>
+            #end
         #end
     </profiles>
     <build>

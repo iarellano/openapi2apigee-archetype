@@ -10,8 +10,9 @@
     "approvalType": "auto",
     "attributes": [
     ],
-    "environments":${jsonEnvs}
-    ,
+    "environments": [
+      "${apigee.env}"
+    ],
     "proxies": [
       "${artifactId}${deployment.suffix}"
     ],

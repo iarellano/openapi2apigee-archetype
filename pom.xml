@@ -100,5 +100,10 @@
       <artifactId>openapi-generator</artifactId>
       <version>4.2.1</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.maven.archetype</groupId>
+      <artifactId>archetype-common</artifactId>
+      <version>3.1.2</version>
+    </dependency>
   </dependencies>
 </project>

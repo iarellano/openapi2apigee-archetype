@@ -1,28 +1,28 @@
-# Global profile["${env}"] configurations
+# Global profile["${profile}"] configurations
 ---
 apigee:
-  env: ${setupMap.get($env).get('env')}
-  org: ${setupMap.get($env).get('org')}
-  authtype: ${setupMap.get($env).get('authtype')}
-  options: ${setupMap.get($env).get('options')}
-  delay: ${setupMap.get($env).get('delay')}
-  tokenurl: ${setupMap.get($env).get('tokenurl')}
-  clientid: ${setupMap.get($env).get('clientid')}
-  clientsecret: ${setupMap.get($env).get('clientsecret')}
-  hosturl: ${setupMap.get($env).get('hosturl')}
-  apiversion: ${setupMap.get($env).get('apiversion')}
+  env: ${setupMap.get($profile).get('env')}
+  org: ${setupMap.get($profile).get('org')}
+  authtype: ${setupMap.get($profile).get('authtype')}
+  options: ${setupMap.get($profile).get('options')}
+  delay: ${setupMap.get($profile).get('delay')}
+  tokenurl: ${setupMap.get($profile).get('tokenurl')}
+  clientid: ${setupMap.get($profile).get('clientid')}
+  clientsecret: ${setupMap.get($profile).get('clientsecret')}
+  hosturl: ${setupMap.get($profile).get('hosturl')}
+  apiversion: ${setupMap.get($profile).get('apiversion')}
   config:
-    options: ${setupMap.get($env).get('config-options')}
-    exportDir: ${setupMap.get($env).get('config-exportdir')}
-    dir: ${setupMap.get($env).get('config-dir')}
+    options: ${setupMap.get($profile).get('config-options')}
+    exportDir: ${setupMap.get($profile).get('config-exportdir')}
+    dir: ${setupMap.get($profile).get('config-dir')}
 
 northbound:
-  domain: ${setupMap.get($env).get('proxydomain')}
-  protocol: ${setupMap.get($env).get('proxyscheme')}
-  port: ${setupMap.get($env).get('proxyport')}
+  domain: ${setupMap.get($profile).get('proxydomain')}
+  protocol: ${setupMap.get($profile).get('proxyscheme')}
+  port: ${setupMap.get($profile).get('proxyport')}
   basePath: ${basepath}
-  virtualhost: ${setupMap.get($env).get('virtualhost')}
+  virtualhost: ${setupMap.get($profile).get('virtualhost')}
 
 targetEndpoint:
-  url: ${setupMap.get($env).get('targeturl')}
+  url: ${setupMap.get($profile).get('targeturl')}
   successCodes: 200

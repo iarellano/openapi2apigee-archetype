@@ -1,4 +1,5 @@
 import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.core.type.TypeReference
 @Grapes([
         @Grab(group='org.openapitools', module='openapi-generator', version='4.2.1'),
         @Grab(group='org.apache.velocity', module='velocity', version='1.7'),
@@ -9,6 +10,8 @@ import com.fasterxml.jackson.core.JsonParser
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.google.gson.Gson
 import org.yaml.snakeyaml.Yaml
 import com.sun.org.apache.xml.internal.serialize.OutputFormat
 import com.sun.org.apache.xml.internal.serialize.XMLSerializer
@@ -47,6 +50,8 @@ import java.nio.file.Paths
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
 import com.google.gson.JsonParser
+
+import org.apache.maven.archetype.ArchetypeGenerationRequest
 
 
 class OpenAPIV3ParserData extends OpenAPIV3Parser {
@@ -230,52 +235,129 @@ class XmlFormater implements FileExecutor {
     }
 }
 
-class EnvSetup {
+class ProfileSetup {
 
     private final Properties props
-    EnvSetup(Properties props) {
+
+    ProfileSetup(Properties props) {
         this.props = props
+    }
+
+    void dumpMap(Map map, int level) {
+        String padding = ""
+        for (int i = 0; i < (level * 2); i++) {
+            padding += " "
+        }
+        for (Object key: map.keySet()) {
+            Object value = map.get(key)
+            if (value instanceof Map) {
+                System.out.println(padding + key + ":")
+                dumpMap((Map) value, level + 1)
+            } else {
+                System.out.println(padding + key + ": " + value.toString())
+            }
+        }
     }
 
     private Map<String, Map<String, String>> getFromParameters() {
         Map<String, Map<String, String>> setupMap = new HashMap<>()
         for (String env : props.get("envs")) {
             Map<String, String> envMap = new HashMap<>()
-            envMap.put("org", props.get("org"))
+            envMap.put("org", props.getProperty("org"))
             envMap.put("env", env)
-            envMap.put("authtype", props.get("authtype"))
-            envMap.put("virtualhost", props.get("virtualhost"))
-            envMap.put("targeturl", props.get("targeturl"))
-            envMap.put("options", props.get("options"))
-            envMap.put("delay", props.get("delay"))
-            envMap.put("tokenurl", props.get("tokenurl"))
-            envMap.put("clientid", props.get("clientid"))
-            envMap.put("clientsecret", props.get("clientsecret"))
-            envMap.put("proxydomain", props.get("proxydomain"))
-            envMap.put("proxyscheme", props.get("proxyscheme"))
-            envMap.put("proxyport", props.get("proxyport"))
-            envMap.put("hosturl", props.get("hosturl"))
-            envMap.put("apiversion", props.get("apiversion"))
-            envMap.put("config-options", props.get("config-options"))
-            envMap.put("config-exportdir", props.get("config-exportdir"))
-            envMap.put("config-dir", props.get("config-dir"))
+            envMap.put("profile", env)
+            envMap.put("authtype", props.getProperty("authtype"))
+            envMap.put("virtualhost", props.getProperty("virtualhost"))
+            envMap.put("targeturl", props.getProperty("targeturl"))
+            envMap.put("options", props.getProperty("options"))
+            envMap.put("delay", props.getProperty("delay"))
+            envMap.put("tokenurl", props.getProperty("tokenurl"))
+            envMap.put("clientid", props.getProperty("clientid"))
+            envMap.put("clientsecret", props.getProperty("clientsecret"))
+            envMap.put("proxydomain", props.getProperty("proxydomain"))
+            envMap.put("proxyscheme", props.getProperty("proxyscheme"))
+            envMap.put("proxyport", props.getProperty("proxyport"))
+            envMap.put("hosturl", props.getProperty("hosturl"))
+            envMap.put("apiversion", props.getProperty("apiversion"))
+            envMap.put("config-options", props.getProperty("config-options"))
+            envMap.put("config-exportdir", props.getProperty("config-exportdir"))
+            envMap.put("config-dir", props.getProperty("config-dir"))
+            envMap.put("config-dir", props.getProperty("config-dir"))
+            envMap.put("mockserver", props.getProperty("mockserver"))
             if ("true".equals(props.get("mockserver"))) {
-                String targetUrl = props.get("proxyscheme") + "://" + props.get("proxydomain") + ":" +  props.get("proxyport") + '/mock' +  props.get("basepath")
+                String targetUrl = props.getProperty("proxyscheme") + "://" + props.getProperty("proxydomain") + ":" +  props.getProperty("proxyport") + '/mock' +  props.getProperty("basepath")
                 envMap.put("targeturl", targetUrl)
             } else {
-                envMap.put("targeturl", props.get("targeturl"))
+                envMap.put("targeturl", props.getProperty("targeturl"))
             }
+
+
             setupMap.put(env, envMap)
         }
         return setupMap
     }
 
-    Map<String, Map<String, String>> getSetupMap() {
-        if (StringUtils.isNotBlank(props.getProperty("edgeSetupFile"))) {
-
+    private Map<String, Map<String, String>> getFromSetupFile() {
+        final String path = props.getProperty("edgeSetupFile")
+        File setupFile = null
+        if (path.startsWith(File.separator) || path.startsWith("\\") || path.startsWith("/")) {
+            setupFile = new File(path)
         } else {
-            return getFromParameters()
+            setupFile = new File(new File(System.getProperty("user.dir")), path)
         }
+        String content = FileUtils.readFileToString(setupFile)
+        final ObjectMapper mapper;
+        if (content.trim().startsWith("{")) {
+            mapper = new ObjectMapper()
+        } else {
+            mapper = new ObjectMapper(new YAMLFactory())
+        }
+        Map<String, Object> settings = mapper.readValue(content, new TypeReference<Map<String, Object>>() {})
+        Map<String, Map<String, Object>> profiles = new HashMap<>()
+        for (String org: settings.keySet()) {
+            Map<String, Object> baseProfile = new HashMap<>()
+            for (Object setting: ((Map) settings.get(org)).keySet()) {
+                if (!"profiles".equals(setting)) {
+                    baseProfile.put(setting, ((Map) settings.get(org)).get(setting))
+                }
+            }
+            for (Object profile: ((Map)((Map) settings.get(org)).get("profiles")).keySet()) {
+                Map<String, String> profileMap = new HashMap<>()
+                profileMap.putAll(baseProfile)
+                profileMap.putAll((Map)((Map)((Map) settings.get(org)).get("profiles")).get(profile))
+                profileMap.put('org', org)
+                if (!profileMap.containsKey("env")) {
+                    profileMap.put("env", ((String) profile))
+                }
+                if (!profileMap.containsKey("profile")) {
+                    profileMap.put('profile', org + "-" + ((String) profile))
+                    profiles.put(org + "-" + ((String) profile), profileMap)
+                } else {
+                    profiles.put((String) profileMap.get("profile"), profileMap)
+                }
+
+                if (profileMap.containsKey("mockserver") && profileMap.get("mockserver")) {
+                    profileMap.put("mockserver", "true")
+                    String targetUrl = profileMap.get("proxyscheme") + "://" + profileMap.get("proxydomain") + ":" +  profileMap.get("proxyport") + '/mock' +  profileMap.get("basepath")
+                    profileMap.put("targeturl", targetUrl)
+                } else {
+                    profileMap.put("mockserver", "false")
+                    profileMap.put("targeturl", profileMap.get("targeturl"))
+                }
+            }
+        }
+        return profiles
+    }
+
+    Map<String, Map<String, String>> getSetup() {
+        Map<String, Map<String, String>> setup;
+        if (StringUtils.isNotBlank(props.getProperty("edgeSetupFile"))) {
+            setup = getFromSetupFile()
+        } else {
+            setup = getFromParameters()
+        }
+//        dumpMap(setup, 0)
+        return setup
     }
 }
 
@@ -329,26 +411,23 @@ class Mocker {
     }
 }
 
-void log(String message) {
-    println("--------------------------------------------- BEGIN MESSAGE ---------------------------------------------")
-    println(message)
-    println("--------------------------------------------- ENd MESSAGE -----------------------------------------------")
-}
 
+final ArchetypeGenerationRequest req = request
 final OpenAPI openAPI
 final String data
-final String specLocation = request.getProperties().get("spec")
-final String specAuthName = request.getProperties().get("spec.auth.name")
-final String specAuthValue = request.getProperties().get("spec.auth.value")
-final String specAuthType = request.getProperties().get("spec.auth.type")
-final List<String> envs = Arrays.asList(request.getProperties().get("envs").split(","))
-final String jsonEnvs = "[\"".concat(String.join("\",\"", envs)).concat("\"]")
-URL specUrl = spec.matches("^(https?|file)://.*") ? new URL(spec) : new File(spec).toURI().toURL()
-final Properties properties = new Properties()
-properties.putAll(request.getProperties())
-properties.put("jsonEnvs", jsonEnvs)
-properties.put("envs", envs)
+final String specLocation = req.getProperties().get("spec")
+final String specAuthName = req.getProperties().get("spec-auth-name")
+final String specAuthValue = req.getProperties().get("spec-auth-value")
+final String specAuthType = req.getProperties().get("spec-auth-type")
 
+final ProfileSetup profileSetup = new ProfileSetup(req.getProperties())
+final Map<String, Map<String, Object>> profiles = profileSetup.getSetup()
+final Properties properties = new Properties()
+properties.putAll(req.getProperties())
+properties.put("setupMap", profiles)
+properties.put("profiles", profiles.keySet())
+
+URL specUrl = spec.matches("^(https?|file)://.*") ? new URL(spec) : new File(spec).toURI().toURL()
 
 List<String> keys = new ArrayList<>()
 for (String key: properties.keys()) {
@@ -359,7 +438,6 @@ for (String key: properties.keys()) {
 for (String key: keys) {
     properties.remove(key)
 }
-
 
 if (specLocation.matches("^https?://.*") && StringUtils.isNotBlank(specAuthType)) {
     AuthorizationValue authorizationValue = new AuthorizationValue(specAuthName, specAuthValue, specAuthType)
@@ -385,11 +463,9 @@ for (String path: openAPI.getPaths().keySet()) {
     }
 }
 properties.put("flows", flows)
-EnvSetup envSetup = new EnvSetup(properties)
-properties.put("setupMap", envSetup.getSetupMap())
 
-File outputDirectory = new File(request.outputDirectory)
-File projectDir = new File(outputDirectory, request.artifactId)
+File outputDirectory = new File(req.outputDirectory)
+File projectDir = new File(outputDirectory, req.artifactId)
 
 File docDir = new File(projectDir, "doc")
 docDir.mkdirs()
@@ -399,16 +475,20 @@ FileWriter fw = new FileWriter(specFile)
 fw.write(data)
 fw.close()
 
+if (StringUtils.isNotBlank(req.getProperties().getProperty("templateDir"))) {
+    FileUtils.copyDirectory(new File(req.getProperties().getProperty("templateDir")), projectDir)
+}
+
 FileUtils.copyFile(specFile, new File(projectDir, "mock/apiproxy/resources/hosted/api/"+specFile.name))
 File profileFile = new File(projectDir, "config/profile-env.yaml.vm")
 File _envDir = new File(projectDir, "edge/_env")
-for (String env: envs) {
 
-    File targetProfileFile = new File(projectDir, String.format("config/profile-%s.yaml.vm", env))
+for (String profile: profiles.keySet()) {
+    File targetProfileFile = new File(projectDir, String.format("config/%s.yaml.vm", profile))
     FileUtils.copyFile(profileFile, targetProfileFile)
-    File envDir = new File(projectDir, "edge/env/".concat(env))
+    File envDir = new File(projectDir, "edge/env/".concat(profile))
     envDir.mkdirs()
-    properties.put("env", env)
+    properties.put("profile", profile)
     TemplateReplacer templateReplacer = new TemplateReplacer(outputDirectory, properties)
     templateReplacer.merge(targetProfileFile)
     for (File configFile: _envDir.listFiles()) {
@@ -424,17 +504,24 @@ FileUtils.forceDelete(_envDir)
 new FileWalker(new RootFilesMover()).walk(new File(projectDir, "root"))
 new FileWalker(new TemplateExecutor(outputDirectory, properties)).walk(projectDir)
 new FileWalker(new FileRenamer()).walk(projectDir)
-new FileWalker(new XmlFormater()).walk(projectDir)
-if (!"true".equals(request.getProperties().get("$mockserver == \"true\""))) {
-    FileUtils.forceDelete(new File(projectDir, "mock"))
-} else {
+
+boolean buildMock = false
+for (String profile: profiles.keySet()) {
+    if ("true".equals(profiles.get(profile).get("mockserver"))) {
+        buildMock = true
+        break
+    }
+}
+if (buildMock) {
     new Mocker().genMock(projectDir, specFile)
+} else {
+    FileUtils.forceDelete(new File(projectDir, "mock"))
 }
 new File(projectDir, "root").delete()
-if (!"true".equals(request.getProperties().get("enable-cors"))) {
-    new File(projectDir, "apiproxy/policies/" + request.getProperties().get("cors-policy-name") + ".xml").delete()
+if (!"true".equals(req.getProperties().get("enable-cors"))) {
+    new File(projectDir, "apiproxy/policies/" + req.getProperties().get("cors-policy-name") + ".xml").delete()
 }
-
+new FileWalker(new XmlFormater()).walk(projectDir)
 
 
 

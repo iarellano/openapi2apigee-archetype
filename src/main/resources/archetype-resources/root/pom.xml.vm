@@ -37,13 +37,14 @@
     </properties>
 
     <profiles>
-        #foreach($env in $envs)
+        #foreach($profile in $profiles)
             <profile>
-                <id>$env</id>
+                <id>${profile}</id>
                 <properties>
-                    <apigee.profile>$env</apigee.profile>
-                    <apigee.env>$env</apigee.env>
-                    <api.testtag>@apiproxy,@services,@$env</api.testtag>
+                    <apigee.profile>${profile}</apigee.profile>
+                    <apigee.org>${setupMap.get($profile).get("org")}</apigee.org>
+                    <apigee.env>${setupMap.get($profile).get("env")}</apigee.env>
+                    <api.testtag>@apiproxy,@services,@${setupMap.get($profile).get("env")}</api.testtag>
                 </properties>
             </profile>
         #end
@@ -152,7 +153,7 @@
                         </goals>
                         <configuration>
                             <files>
-                                <file>${project.basedir}/config/profile-${apigee.profile}.yaml</file>
+                                <file>${project.basedir}/config/${apigee.profile}.yaml</file>
                             </files>
                         </configuration>
                     </execution>
@@ -172,7 +173,6 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <!-- Be sure not to filter JAR files -->
                             <nonFilteredFileExtensions>
                                 <nonFilteredFileExtension>jar</nonFilteredFileExtension>
                             </nonFilteredFileExtensions>
@@ -185,12 +185,35 @@
                                         <include>apiproxy/**</include>
                                         <include>test/integration/**</include>
                                         <include>edge/org/**</include>
-                                        <include>edge/env/${apigee.env}/**</include>
                                         <include>edge/api/${artifactId}/**</include>
                                     </includes>
                                 </resource>
                             </resources>
                             <outputDirectory>${project.build.directory}</outputDirectory>
+                        </configuration>
+                    </execution>
+                    <!-- copy profiled proxy dependencies -->
+                    <execution>
+                        <id>copy-profile-resources</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <nonFilteredFileExtensions>
+                                <nonFilteredFileExtension>jar</nonFilteredFileExtension>
+                            </nonFilteredFileExtensions>
+                            <overwrite>true</overwrite>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/edge/env/${apigee.profile}</directory>
+                                    <filtering>true</filtering>
+                                    <includes>
+                                        <include>**</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                            <outputDirectory>${project.build.directory}/edge/env/${apigee.env}/</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
