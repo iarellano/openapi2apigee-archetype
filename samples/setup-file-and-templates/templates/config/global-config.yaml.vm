@@ -1,0 +1,11 @@
+# Global common configuration
+---
+apigee:
+  hosturl: ${hosturl}/enmicasa/miroot/path
+  apiversion: ${apiversion}
+  config:
+    options: create
+
+other-settings:
+  setting1: value1
+  setting2: value2

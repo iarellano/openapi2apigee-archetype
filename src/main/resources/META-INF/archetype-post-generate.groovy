@@ -149,6 +149,17 @@ class APIProxyFlow {
     String desc
     String path
     String verb
+
+
+    @Override
+    public String toString() {
+        return "APIProxyFlow{" +
+                "name='" + name + '\'' +
+                ", desc='" + desc + '\'' +
+                ", path='" + path + '\'' +
+                ", verb='" + verb + '\'' +
+                '}';
+    }
 }
 
 interface FileExecutor {
@@ -259,6 +270,7 @@ class ProfileSetup {
         }
     }
 
+
     private Map<String, Map<String, String>> getFromParameters() {
         Map<String, Map<String, String>> setupMap = new HashMap<>()
         for (String env : props.get("envs")) {
@@ -290,21 +302,34 @@ class ProfileSetup {
             } else {
                 envMap.put("targeturl", props.getProperty("targeturl"))
             }
-
-
             setupMap.put(env, envMap)
         }
         return setupMap
     }
 
+    private Map<String, String> getDefaultValues() {
+        Map<String, String> setup = new HashMap<>()
+        setup.put("hosturl", "https://api.enterprise.apigee.com")
+        setup.put("apiversion", "v1")
+        setup.put("options", "update")
+        setup.put("delay", "1000")
+        setup.put("tokenurl", "https://login.apigee.com/oauth/token")
+        setup.put("authtype", "basic")
+        setup.put("clientid", "edgecli")
+        setup.put("clientsecret", "edgeclisecret")
+        setup.put("proxyscheme", "https")
+        setup.put("proxyport", "443")
+        setup.put("config-options", "update")
+        setup.put("config-exportdir", "target")
+        setup.put("config-dir", "target/edge")
+        setup.put("enable-cors", "false")
+        setup.put("cors-policy-name", "AM-AddCORS")
+        return setup
+    }
+
     private Map<String, Map<String, String>> getFromSetupFile() {
         final String path = props.getProperty("edgeSetupFile")
-        File setupFile = null
-        if (path.startsWith(File.separator) || path.startsWith("\\") || path.startsWith("/")) {
-            setupFile = new File(path)
-        } else {
-            setupFile = new File(new File(System.getProperty("user.dir")), path)
-        }
+        File setupFile = new File(path)
         String content = FileUtils.readFileToString(setupFile)
         final ObjectMapper mapper;
         if (content.trim().startsWith("{")) {
@@ -321,29 +346,34 @@ class ProfileSetup {
                     baseProfile.put(setting, ((Map) settings.get(org)).get(setting))
                 }
             }
-            for (Object profile: ((Map)((Map) settings.get(org)).get("profiles")).keySet()) {
-                Map<String, String> profileMap = new HashMap<>()
-                profileMap.putAll(baseProfile)
-                profileMap.putAll((Map)((Map)((Map) settings.get(org)).get("profiles")).get(profile))
-                profileMap.put('org', org)
-                if (!profileMap.containsKey("env")) {
-                    profileMap.put("env", ((String) profile))
-                }
-                if (!profileMap.containsKey("profile")) {
-                    profileMap.put('profile', org + "-" + ((String) profile))
-                    profiles.put(org + "-" + ((String) profile), profileMap)
-                } else {
-                    profiles.put((String) profileMap.get("profile"), profileMap)
-                }
+            if (!"additional-settings".equals(org)) {
+                for (Object profile : ((Map) ((Map) settings.get(org)).get("profiles")).keySet()) {
+                    Map<String, String> profileMap = new HashMap<>()
+                    profileMap.putAll(getDefaultValues())
+                    profileMap.putAll(baseProfile)
+                    profileMap.putAll((Map) ((Map) ((Map) settings.get(org)).get("profiles")).get(profile))
+                    profileMap.put('org', org)
+                    if (!profileMap.containsKey("env")) {
+                        profileMap.put("env", ((String) profile))
+                    }
+                    if (!profileMap.containsKey("profile")) {
+                        profileMap.put('profile', org + "-" + ((String) profile))
+                        profiles.put(org + "-" + ((String) profile), profileMap)
+                    } else {
+                        profiles.put((String) profileMap.get("profile"), profileMap)
+                    }
 
-                if (profileMap.containsKey("mockserver") && profileMap.get("mockserver")) {
-                    profileMap.put("mockserver", "true")
-                    String targetUrl = profileMap.get("proxyscheme") + "://" + profileMap.get("proxydomain") + ":" +  profileMap.get("proxyport") + '/mock' +  profileMap.get("basepath")
-                    profileMap.put("targeturl", targetUrl)
-                } else {
-                    profileMap.put("mockserver", "false")
-                    profileMap.put("targeturl", profileMap.get("targeturl"))
+                    if (profileMap.containsKey("mockserver") && profileMap.get("mockserver")) {
+                        profileMap.put("mockserver", "true")
+                        String targetUrl = profileMap.get("proxyscheme") + "://" + profileMap.get("proxydomain") + ":" + profileMap.get("proxyport") + '/mock' + profileMap.get("basepath")
+                        profileMap.put("targeturl", targetUrl)
+                    } else {
+                        profileMap.put("mockserver", "false")
+                        profileMap.put("targeturl", profileMap.get("targeturl"))
+                    }
                 }
+            } else {
+                profiles.put("additional-settings", baseProfile)
             }
         }
         return profiles
@@ -356,7 +386,6 @@ class ProfileSetup {
         } else {
             setup = getFromParameters()
         }
-//        dumpMap(setup, 0)
         return setup
     }
 }
@@ -426,6 +455,10 @@ final Properties properties = new Properties()
 properties.putAll(req.getProperties())
 properties.put("setupMap", profiles)
 properties.put("profiles", profiles.keySet())
+if (profiles.containsKey("additional-settings")) {
+    properties.put("additional-settings", profiles.get("additional-settings"))
+    profiles.remove("additional-settings")
+}
 
 URL specUrl = spec.matches("^(https?|file)://.*") ? new URL(spec) : new File(spec).toURI().toURL()
 
@@ -466,7 +499,6 @@ properties.put("flows", flows)
 
 File outputDirectory = new File(req.outputDirectory)
 File projectDir = new File(outputDirectory, req.artifactId)
-
 File docDir = new File(projectDir, "doc")
 docDir.mkdirs()
 File specFile = new File(docDir, new File(specUrl.getFile()).getName())
@@ -474,10 +506,13 @@ properties.put("specFileName", specFile.getName())
 FileWriter fw = new FileWriter(specFile)
 fw.write(data)
 fw.close()
-
-if (StringUtils.isNotBlank(req.getProperties().getProperty("templateDir"))) {
-    FileUtils.copyDirectory(new File(req.getProperties().getProperty("templateDir")), projectDir)
+if (StringUtils.isNotBlank(properties.getProperty("templateDir"))) {
+    FileUtils.copyDirectory(new File(properties.getProperty("templateDir")), projectDir)
 }
+
+System.out.println("---------------DEBUG---------------")
+profileSetup.dumpMap(properties, 0)
+System.out.println("---------------DEBUG---------------")
 
 FileUtils.copyFile(specFile, new File(projectDir, "mock/apiproxy/resources/hosted/api/"+specFile.name))
 File profileFile = new File(projectDir, "config/profile-env.yaml.vm")
