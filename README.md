@@ -159,4 +159,4 @@ That will gereate a forlder petstore-v1 containing all your artifacts. Follow th
 | mock     | mock server when <code>mockserver=true</code>                                           |
 | test     | basic integration tests with cucumberjs + [Apickli](https://github.com/apickli/apickli) |
 
-instruction for deploying and testing the apiproxy will be in generate README.mc file
+**Important note** Instructions for deploying and testing the apiproxy will be in generated README.md file
